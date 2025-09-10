@@ -202,7 +202,7 @@ export default function Index() {
               <div key={a.name} className="rounded-xl border border-white/10 bg-white/5 p-5 space-y-3">
                 <div className="flex items-baseline justify-between gap-4">
                   <div>
-                    <div className="text-xl font-bold">{a.name} Arcana</div>
+                    <div className={`text-xl font-bold ${arcanaColors[a.name] || "text-white"}`}>{a.name} Arcana</div>
                     <div className="text-sm text-slate-300">Theme: {a.theme}</div>
                   </div>
                   {a.rareSub && (
