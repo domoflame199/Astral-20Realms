@@ -238,7 +238,7 @@ export default function Index() {
           <div className="mt-6 grid md:grid-cols-2 gap-6">
             {legendary.map((l) => (
               <div key={l.name} className="rounded-xl border border-white/10 bg-white/5 p-5">
-                <div className="font-semibold text-violet-200">{l.name}</div>
+                <div className="font-semibold text-white">{l.name}</div>
                 <ul className="mt-2 space-y-1 text-slate-200 text-sm">
                   {l.abilities.map((ab) => (<li key={ab}>• {ab}</li>))}
                 </ul>
