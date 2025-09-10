@@ -58,17 +58,21 @@ function Combat.ApplyDamage(attacker, targetHumanoid, baseDamage, meta)
 		return false
 	end
 
-	-- cooldowns for players
+	-- cooldowns for players and NPCs
+	local key
 	if typeof(attacker) == "Instance" and attacker:IsA("Player") then
-		local id = attackerId(attacker)
-		local cd = cooldowns[id] or 0
-		if now() < cd then
-			-- too fast
-			warn("Combat cooldown violated by", attacker.Name)
-			return false
-		end
-		cooldowns[id] = now() + (meta and meta.cooldown or Config.Combat.GlobalCooldown or 0.25)
+		key = "P_"..attacker.UserId
+	elseif typeof(attacker) == "Instance" and attacker:IsA("Model") then
+		key = attacker -- use instance as key
+	else
+		key = tostring(attacker)
 	end
+	local cd = cooldowns[key] or 0
+	if now() < cd then
+		warn("Combat cooldown violated by", attacker)
+		return false
+	end
+	cooldowns[key] = now() + (meta and meta.cooldown or Config.Combat.GlobalCooldown or 0.25)
 
 	-- apply damage server-side
 	if targetHumanoid and targetHumanoid.Health > 0 then
