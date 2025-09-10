@@ -6,6 +6,8 @@ local Net = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitForChi
 local Config = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitForChild("Shared"):WaitForChild("Config"))
 
 local Services = {}
+local Maid = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitForChild("Shared"):WaitForChild("Maid"))
+Services.PlayerMaids = {}
 
 local function requireIfExists(path)
 	if path then
