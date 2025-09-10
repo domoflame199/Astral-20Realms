@@ -18,15 +18,6 @@ local function clampDamage(n)
 	return math.clamp(n, Config.Combat.DamageClamp.Min, Config.Combat.DamageClamp.Max)
 end
 
-local function attackerId(att)
-	if typeof(att) == "Instance" and att:IsA("Player") then return "P_"..att.UserId end
-	if typeof(att) == "Instance" and att:IsA("Model") and att:FindFirstChildWhichIsA("Humanoid") then
-		-- NPC model: use Instance as key
-		return tostring(att:GetDebugId())
-	end
-	return tostring(att)
-end
-
 local function checkDistanceAndValidity(attacker, targetHumanoid, maxRange)
 	if not targetHumanoid or not targetHumanoid.Parent then return false end
 	local targetRoot = targetHumanoid.Parent:FindFirstChild("HumanoidRootPart")
