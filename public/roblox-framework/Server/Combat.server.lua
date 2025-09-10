@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local Net = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitForChild("Shared"):WaitForChild("Net"))
 local Config = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitForChild("Shared"):WaitForChild("Config"))
@@ -10,21 +11,101 @@ local PlayerData = require(script.Parent:WaitForChild("PlayerData"))
 local Combat = {}
 Combat.__index = Combat
 
+local cooldowns = {}
+local function now() return os.clock() end
+
 local function clampDamage(n)
 	return math.clamp(n, Config.Combat.DamageClamp.Min, Config.Combat.DamageClamp.Max)
 end
 
-function Combat:Init()
-	Net.GetEvent("LightAttack").OnServerEvent:Connect(function(plr, targetHumanoid, baseDamage)
-		if not RateLimiter.Try(plr, "LightAttack", Config.Networking.RateLimits.LightAttack) then return end
-		local hum = targetHumanoid
-		if typeof(hum) == "Instance" and hum:IsA("Humanoid") and hum.Health > 0 then
-			local dmg = clampDamage(tonumber(baseDamage) or 0)
-			hum:TakeDamage(dmg)
-			if math.random() < 0.1 then
-				Status.Apply(plr, "Blessed", 3)
-			end
+local function attackerId(att)
+	if typeof(att) == "Instance" and att:IsA("Player") then return "P_"..att.UserId end
+	if typeof(att) == "Instance" and att:IsA("Model") and att:FindFirstChildWhichIsA("Humanoid") then
+		-- NPC model: use Instance as key
+		return tostring(att:GetDebugId())
+	end
+	return tostring(att)
+end
+
+local function checkDistanceAndValidity(attacker, targetHumanoid, maxRange)
+	if not targetHumanoid or not targetHumanoid.Parent then return false end
+	local targetRoot = targetHumanoid.Parent:FindFirstChild("HumanoidRootPart")
+	if not targetRoot then return false end
+	if typeof(attacker) == "Instance" and attacker:IsA("Player") then
+		local char = attacker.Character
+		if not char or not char:FindFirstChild("HumanoidRootPart") then return false end
+		local dist = (char.HumanoidRootPart.Position - targetRoot.Position).Magnitude
+		if dist > (maxRange or 6) then return false end
+	end
+	-- allow server-side NPCs (attacker is model)
+	if typeof(attacker) == "Instance" and attacker:IsA("Model") then
+		local root = attacker:FindFirstChild("HumanoidRootPart")
+		if root then
+			local dist = (root.Position - targetRoot.Position).Magnitude
+			if dist > (maxRange or 6) + 2 then return false end
 		end
+	end
+	return true
+end
+
+function Combat.ApplyDamage(attacker, targetHumanoid, baseDamage, meta)
+	-- attacker: Player instance or NPC model
+	-- targetHumanoid: Humanoid instance
+	-- meta: table with optional fields
+	local dmg = clampDamage(tonumber(baseDamage) or 0)
+	if dmg <= 0 then return false end
+
+	-- Anti-cheat: extremely large damages are rejected and reported
+	if dmg > 10000 then
+		warn("Cheat detected: excessive damage", attacker, dmg)
+		return false
+	end
+
+	-- Validate range and existence
+	if not checkDistanceAndValidity(attacker, targetHumanoid, meta and meta.range) then
+		warn("Combat validation failed: distance or invalid target", attacker)
+		return false
+	end
+
+	-- cooldowns for players
+	if typeof(attacker) == "Instance" and attacker:IsA("Player") then
+		local id = attackerId(attacker)
+		local cd = cooldowns[id] or 0
+		if now() < cd then
+			-- too fast
+			warn("Combat cooldown violated by", attacker.Name)
+			return false
+		end
+		cooldowns[id] = now() + (meta and meta.cooldown or Config.Combat.GlobalCooldown or 0.25)
+	end
+
+	-- apply damage server-side
+	if targetHumanoid and targetHumanoid.Health > 0 then
+		local final = math.floor(dmg)
+		targetHumanoid:TakeDamage(final)
+		-- small chance to apply a status
+		if math.random() < 0.08 then
+			Status.Apply(attacker, "Bleeding", 4)
+		end
+		return true
+	end
+	return false
+end
+
+function Combat:Init()
+	-- Client-initiated light attack: server validates then applies
+	Net.GetEvent("LightAttack").OnServerEvent:Connect(function(plr, targetInstance, claimedDamage)
+		if not RateLimiter.Try(plr, "LightAttack", Config.Networking.RateLimits.LightAttack) then return end
+		-- ensure target is valid instance
+		if typeof(targetInstance) ~= "Instance" then return end
+		local hum = targetInstance
+		if not hum:IsA("Humanoid") then
+			local alt = targetInstance:FindFirstChildWhichIsA and targetInstance:FindFirstChildWhichIsA("Humanoid")
+			if alt then hum = alt end
+		end
+		if not hum then return end
+		-- server authoritative apply
+		Combat.ApplyDamage(plr, hum, claimedDamage or 0, { range = 6, cooldown = Config.Combat.GlobalCooldown })
 	end)
 end
 
