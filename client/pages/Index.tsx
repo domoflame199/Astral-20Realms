@@ -37,6 +37,17 @@ export default function Index() {
   const [traitQuery, setTraitQuery] = useState("");
   const filteredTraits = useMemo(() => traits.filter(t => (t.name + " " + t.description).toLowerCase().includes(traitQuery.toLowerCase())), [traitQuery]);
 
+  const arcanaColors: Record<string, string> = {
+    Fire: "text-amber-300",
+    Ice: "text-cyan-200",
+    Lightning: "text-yellow-300",
+    Earth: "text-emerald-300",
+    Wind: "text-sky-200",
+    Water: "text-teal-200",
+    Light: "text-amber-100",
+    Shadow: "text-violet-300",
+  };
+
   const frameworkFiles = [
     "Shared/Signal.lua",
     "Shared/Net.lua",
