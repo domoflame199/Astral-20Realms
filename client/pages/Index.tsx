@@ -310,6 +310,69 @@ export default function Index() {
             <div className="text-sm text-slate-300">
               Place Shared into ReplicatedStorage/AstralFramework, Server files under ServerScriptService/AstralFramework, and Client under StarterPlayer/StarterPlayerScripts/AstralFramework.
             </div>
+
+            {/* Detailed framework notes (expanded) */}
+            <div className="mt-6 rounded-lg border border-white/10 bg-white/4 p-5">
+              <h4 className="text-lg font-semibold">Framework Notes — End-to-End</h4>
+              <div className="mt-3 text-sm text-slate-200 space-y-3">
+                <div>
+                  <strong>Placement</strong>
+                  <div>ReplicatedStorage/AstralFramework/Shared (ModuleScripts); ServerScriptService/AstralFramework (Scripts/ModuleScripts); StarterPlayer/StarterPlayerScripts/AstralFramework (LocalScripts).</div>
+                </div>
+
+                <div>
+                  <strong>Runtime behavior</strong>
+                  <div>Player joins → ServiceController starts services → PlayerData loads profile → client Bootstrap requests profile and initializes controllers. Combat/Arcana actions are validated server-side and recorded to PlayerData (gold, inventory, XP).</div>
+                </div>
+
+                <div>
+                  <strong>NPCs & AI</strong>
+                  <div>Import NPC Models to Workspace/NPCTemplates with a Humanoid and HumanoidRootPart. AI.Spawn clones templates to Workspace/NPCs and controls aggro, pathfinding, and server-side attack application via Combat.ApplyDamage.</div>
+                </div>
+
+                <div>
+                  <strong>Assets & Animations</strong>
+                  <div>Store Animations, VFX, and equipment in ReplicatedStorage. Attach Animation objects to Humanoids (Animator). Clients play local animations & effects while server authoritatively resolves outcomes (damage, loot).</div>
+                </div>
+
+                <div>
+                  <strong>Shops, Crafting & Loot</strong>
+                  <div>Use RequestShop / ShopBuy / CraftItem remotes. Crafting.server validates materials, Loot.RollFor awards items/gold, and PlayerData persists all changes. Shops should be server-driven snapshots to prevent client tampering.</div>
+                </div>
+
+                <div>
+                  <strong>Persistence</strong>
+                  <div>PlayerData implements autosave, DataStore retry/backoff, and schema migrations. Profiles are copied to clients via GetProfile (read-only snapshot) and all authoritative writes happen server-side.</div>
+                </div>
+
+                <div>
+                  <strong>Tips</strong>
+                  <ul className="list-disc ml-4 mt-1 text-slate-200">
+                    <li>Keep authority on server for combat, loot, economy.</li>
+                    <li>Use Maid for per-player and per-NPC cleanup to avoid leaks.</li>
+                    <li>Place shared visual/sound assets in ReplicatedStorage for safe cloning.</li>
+                    <li>Use AnimationEvents and RemoteEvents to sync cast starts/ends; implement client prediction with server reconciliation for feel.</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <strong>Expected end-to-end flow</strong>
+                  <div>
+                    Players explore Pangea, encounter NPCs and rifts, use Monoliths to attune and gain traits, learn Arcana via training trials, group for dungeons (matchmaking), craft gear, and ultimately pursue Legendary Astral Arcana to confront Alastor. Server ensures persistence, anti-cheat protection, and authoritative combat/loot.
+                  </div>
+                </div>
+
+                <div>
+                  <strong>Animations & Models</strong>
+                  <div>
+                    NPC Models: templates in Workspace/NPCTemplates with humanoid, animator-ready animations and attributes (AttackPower, LootTable).
+                    Player Animations: Animation objects included in ReplicatedStorage and referenced from character scripts or equipment. VFX/particles remain client-side but are spawned via server notifications for synchronized events.
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
