@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import Layout from "@/components/layout/Layout";
 import {
   lore,
   timeline,
