@@ -30,6 +30,15 @@ local function bootstrap()
 	Net.GetEvent("StatusCleared")
 	Net.GetEvent("MonolithAttune")
 	Net.GetFunction("GetProfile")
+	-- Shop / Crafting
+	Net.GetFunction("ShopBuy")
+	Net.GetFunction("RequestShop")
+	Net.GetFunction("CraftItem")
+	Net.GetEvent("ShopUpdate")
+	-- NPC / AI / Loot
+	Net.GetEvent("NPCSpawn")
+	Net.GetEvent("LootDropped")
+	Net.GetFunction("RollLoot")
 
 	Services.RateLimiter = requireIfExists(script.Parent:FindFirstChild("RateLimiter")) or {}
 	Services.PlayerData = requireIfExists(script.Parent:FindFirstChild("PlayerData")) or {}
