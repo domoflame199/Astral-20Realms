@@ -207,7 +207,7 @@ export default function Index() {
                   </div>
                   {a.rareSub && (
                     <div className="text-right">
-                      <div className="text-sm font-semibold text-rose-300">{a.rareSub.name} (Rare)</div>
+                      <div className="text-sm font-semibold text-rose-200">{a.rareSub.name} (Rare)</div>
                       <div className="text-xs text-slate-300">{a.rareSub.theme}</div>
                     </div>
                   )}
