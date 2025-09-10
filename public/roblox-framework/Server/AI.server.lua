@@ -3,9 +3,16 @@ local PathfindingService = game:GetService("PathfindingService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local PathfindingService = game:GetService("PathfindingService")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
 local Net = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitForChild("Shared"):WaitForChild("Net"))
 local Loot = require(script.Parent:WaitForChild("Loot"))
 local Config = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitForChild("Shared"):WaitForChild("Config"))
+local Maid = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitForChild("Shared"):WaitForChild("Maid"))
+local Combat = require(script.Parent:WaitForChild("Combat"))
 
 local AI = {}
 AI.__index = AI
@@ -30,7 +37,6 @@ local function wanderTo(npc, root)
 	local hrp = root:FindFirstChild("HumanoidRootPart")
 	if not hrp then return end
 	local origin = hrp.Position
-	local region = Region3.new(origin - Vector3.new(30,5,30), origin + Vector3.new(30,5,30))
 	local x = origin.X + math.random(-20,20)
 	local z = origin.Z + math.random(-20,20)
 	local goal = Vector3.new(x, origin.Y, z)
@@ -46,11 +52,11 @@ local function wanderTo(npc, root)
 	end
 end
 
-local function loopAI(npcModel)
+local function loopAI(npcModel, maid)
 	local root = npcModel:FindFirstChild("HumanoidRootPart") and npcModel
 	local hum = findHumanoid(npcModel)
 	if not hum or not root then return end
-	while npcModel.Parent do
+	while npcModel.Parent and not (maid and maid._destroyed) do
 		-- simple aggro: find nearest player within range
 		local nearest, nd = nil, 9999
 		for _, plr in pairs(game.Players:GetPlayers()) do
@@ -68,14 +74,15 @@ local function loopAI(npcModel)
 				path:ComputeAsync(root.HumanoidRootPart.Position, targetPos)
 				local wps = path:GetWaypoints()
 				for _,wp in ipairs(wps) do
-					if not npcModel.Parent then break end
+					if not npcModel.Parent or (maid and maid._destroyed) then break end
 					root:PivotTo(CFrame.new(wp.Position))
 					task.wait(0.25)
 				end
 			end
-			-- if close, perform melee (server combat handles actual damage via events)
+			-- if close, perform melee (server-side authoritative)
 			if nd < 4 and hum.Health > 0 then
-				Net.GetEvent("LightAttack"):FireServer(npcModel) -- no-op for NPC; serverside Combat system should support NPC origin
+				local attackPower = npcModel:GetAttribute("AttackPower") or 9
+				Combat.ApplyDamage(npcModel, nearest.Character and nearest.Character:FindFirstChildOfClass("Humanoid"), attackPower, { range = 5 })
 			end
 		else
 			-- wander
@@ -93,7 +100,16 @@ function AI.Spawn(template, position)
 	end
 	model:SetPrimaryPartCFrame(CFrame.new(position or Vector3.new(0,5,0)))
 	model.Parent = NPC_FOLDER
-	spawn(function() loopAI(model) end)
+	local maid = Maid.new()
+	active[model] = maid
+	spawn(function() loopAI(model, maid) end)
+	-- cleanup when model removed
+	maid:GiveTask(model.AncestryChanged:Connect(function()
+		if not model:IsDescendantOf(game) then
+			maid:Destroy()
+			active[model] = nil
+		end
+	end))
 	return model
 end
 
