@@ -14,8 +14,51 @@ local DEFAULT = {
 	Traits = {},
 	Arcana = { Primary = "", Rare = "" },
 	Stats = { Level = 1, XP = 0, Gold = 0 },
+	Inventory = {},
 	FirstAttunementGranted = false,
 }
+
+-- Helper functions for basic inventory and economy operations
+function PlayerData.AddItem(plr, item, qty)
+	local profile = sessions[plr]
+	if not profile then return false end
+	profile.Inventory[item] = (profile.Inventory[item] or 0) + (qty or 1)
+	return true
+end
+
+function PlayerData.RemoveGold(plr, amount)
+	local profile = sessions[plr]
+	if not profile then return false end
+	if profile.Stats.Gold < amount then return false end
+	profile.Stats.Gold = profile.Stats.Gold - amount
+	return true
+end
+
+function PlayerData.AddGold(plr, amount)
+	local profile = sessions[plr]
+	if not profile then return false end
+	profile.Stats.Gold = profile.Stats.Gold + amount
+	return true
+end
+
+function PlayerData.HasMaterials(plr, materials)
+	local profile = sessions[plr]
+	if not profile then return false end
+	for item, qty in pairs(materials) do
+		if (profile.Inventory[item] or 0) < qty then return false end
+	end
+	return true
+end
+
+function PlayerData.RemoveMaterials(plr, materials)
+	local profile = sessions[plr]
+	if not profile then return false end
+	for item, qty in pairs(materials) do
+		profile.Inventory[item] = (profile.Inventory[item] or 0) - qty
+		if profile.Inventory[item] <= 0 then profile.Inventory[item] = nil end
+	end
+	return true
+end
 
 local function deepCopy(t)
 	local n = {}
