@@ -56,13 +56,31 @@ local function bootstrap()
 	end
 
 	Players.PlayerAdded:Connect(function(plr)
+		-- create a maid for this player to track connections and resources
+		local md = Maid.new()
+		Services.PlayerMaids[plr] = md
 		if Services.PlayerData and Services.PlayerData.OnPlayerAdded then
 			Services.PlayerData:OnPlayerAdded(plr)
 		end
+		-- when character added, allow services to bind per-character resources
+		local conn = plr.CharacterAdded:Connect(function(char)
+			if Services.PlayerData and Services.PlayerData.OnCharacterAdded then
+				Services.PlayerData:OnCharacterAdded(plr, char)
+			end
+		end)
+		md:GiveTask(conn)
 	end)
+
 	Players.PlayerRemoving:Connect(function(plr)
+		-- save profile
 		if Services.PlayerData and Services.PlayerData.OnPlayerRemoving then
 			Services.PlayerData:OnPlayerRemoving(plr)
+		end
+		-- cleanup maid
+		local md = Services.PlayerMaids[plr]
+		if md then
+			md:Destroy()
+			Services.PlayerMaids[plr] = nil
 		end
 	end)
 end
