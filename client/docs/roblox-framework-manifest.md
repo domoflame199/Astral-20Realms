@@ -4,7 +4,8 @@ Purpose
 This single manifest lists every script/module created in the project, where it should be placed inside a Roblox Studio place (exact folder), the type (ModuleScript / Script / LocalScript), short description, and key dependencies. It also includes an end-to-end flow and asset guidance for animations/models.
 
 How to use
-- Create folders in Studio matching the "Target Path" column, then add ModuleScripts/Scripts/LocalScripts and paste the code from the matching file in this repository (public/roblox-framework/*).
+
+- Create folders in Studio matching the "Target Path" column, then add ModuleScripts/Scripts/LocalScripts and paste the code from the matching file in this repository (public/roblox-framework/\*).
 - Shared code should go into ReplicatedStorage so both client and server can require it safely.
 - Server authoritative code belongs under ServerScriptService.
 - Client LocalScripts belong in StarterPlayer > StarterPlayerScripts.
@@ -12,6 +13,7 @@ How to use
 ==== FILE MANIFEST (by target location) ====
 
 ReplicatedStorage/AstralFramework/Shared (ModuleScript)
+
 - Signal.lua
   • Type: ModuleScript
   • Purpose: lightweight signal helper (BindableEvent wrapper). Use for internal event patterns in modules.
@@ -37,8 +39,8 @@ ReplicatedStorage/AstralFramework/Shared (ModuleScript)
   • Purpose: Resource/connection cleanup utility. Use per-player and per-NPC to avoid memory leaks.
   • Dependencies: none
 
-
 ServerScriptService/AstralFramework
+
 - ServiceController.server.lua
   • Type: Script (entry point)
   • Purpose: Bootstraps services. Require this script to start server modules. Creates necessary remotes early.
@@ -104,8 +106,8 @@ ServerScriptService/AstralFramework
   • Purpose: NPC spawning & server-side AI loops; pathfinding, aggro, and NPC attacks performed by calling Combat.ApplyDamage.
   • Dependencies: PathfindingService, Maid, Combat, Loot
 
-
 StarterPlayer > StarterPlayerScripts > AstralFramework (LocalScript)
+
 - Bootstrap.client.lua
   • Type: LocalScript
   • Purpose: Client bootstrapper. Requires controllers, invokes GetProfile, and initializes local controllers.
@@ -131,8 +133,8 @@ StarterPlayer > StarterPlayerScripts > AstralFramework (LocalScript)
   • Purpose: Example client usage for shop: calls RequestShop and ShopBuy.
   • Dependencies: Shared/Net
 
-
 Workspace (place in Explorer)
+
 - NPCTemplates (Folder)
   • Type: Folder (no script)
   • Purpose: Store NPC models used as templates. Each model should include a Humanoid, HumanoidRootPart, Animator, and any Animation objects.
@@ -141,8 +143,8 @@ Workspace (place in Explorer)
   • Type: Folder (created at runtime)
   • Purpose: AI.Spawn clones templates into this folder. Do not place templates here.
 
-
 Web / Local repo (for documentation and demo UI)
+
 - client/pages/Index.tsx (React page)
   • Purpose: In-repo codex, Arcana catalog, shop/crafting demo UI, and the detailed Roblox framework notes.
 
@@ -152,8 +154,8 @@ Web / Local repo (for documentation and demo UI)
 - client/data/codex.ts, client/data/items.ts
   • Purpose: local data used by the demo web UI.
 
-
 ==== End-to-End summary (what should be possible when wired) ====
+
 - Player join: ServiceController boots services; PlayerData loads player profile from DataStore. Player has saved inventory, traits, and gold.
 - Client initializes: Bootstrap requests GetProfile, shows HUD, binds input (left click, hotkeys) and local animation/VFX.
 - Combat flow: Player targets an enemy and performs LightAttack or CastAbility. Client sends a minimal request; server validates distance and cooldowns then applies damage via Humanoid:TakeDamage. Server may also award gold/XP via PlayerData.
@@ -162,8 +164,8 @@ Web / Local repo (for documentation and demo UI)
 - Shop/Crafting: Client requests shop snapshot (RequestShop). ShopBuy and CraftItem are validated server-side and update PlayerData inventory/gold.
 - Persistence: PlayerData autosaves periodically and when players leave with DataStore retry/backoff and schema migrations.
 
-
 ==== Assets & Animations (where to place & how to use) ====
+
 - Store visual assets (ParticleEmitters, VFX models, weapon models) and Animation objects in ReplicatedStorage under folders like:
   ReplicatedStorage/Assets/Animations
   ReplicatedStorage/Assets/VFX
@@ -173,15 +175,15 @@ Web / Local repo (for documentation and demo UI)
 - For players: keep Animation objects in ReplicatedStorage and the local controller or a character script should load and play them on the player's Humanoid.Animator.
 - For projectiles: prefer server-controlled projectiles for authoritative collisions or use server validation after client-side visual projectile.
 
-
 ==== Practical tips for importing into Roblox Studio ====
+
 1. Prefer using Rojo for a direct file->Explorer mapping. If not using Rojo, create the folder structure manually in Studio.
 2. ModuleScripts: copy contents of Module .lua files into ModuleScript objects. Scripts: use regular Script under ServerScriptService. LocalScripts: place under StarterPlayerScripts.
 3. After import, set appropriate script names exactly as in this manifest (ServiceController.server, Combat.server, etc.) to match code references.
 4. Test iteratively: first start with ServiceController + PlayerData + Net + Config, then add Combat and AI, then Shop/Crafting/Loot.
 
-
 If you want, I can also:
+
 - Generate a Rojo project.json and ZIP with the exact folder layout for one-step import,
 - Produce a sample NPC template (rbxm) and a minimal animation set for an attack cycle,
 - Or export a Studio-compatible .rbxm that you can insert directly.

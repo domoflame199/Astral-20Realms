@@ -1,13 +1,47 @@
 export const Catalog = [
-  { id: "hp_potion", name: "Healing Potion", price: 50, description: "Restores 200 HP", stack: true },
-  { id: "mana_potion", name: "Mana Potion", price: 45, description: "Restores 100 Mana", stack: true },
-  { id: "iron_sword", name: "Iron Sword", price: 300, description: "Basic melee weapon", stack: false },
-  { id: "astral_core", name: "Astral Core", price: 1000, description: "Rare crafting component", stack: true },
+  {
+    id: "hp_potion",
+    name: "Healing Potion",
+    price: 50,
+    description: "Restores 200 HP",
+    stack: true,
+  },
+  {
+    id: "mana_potion",
+    name: "Mana Potion",
+    price: 45,
+    description: "Restores 100 Mana",
+    stack: true,
+  },
+  {
+    id: "iron_sword",
+    name: "Iron Sword",
+    price: 300,
+    description: "Basic melee weapon",
+    stack: false,
+  },
+  {
+    id: "astral_core",
+    name: "Astral Core",
+    price: 1000,
+    description: "Rare crafting component",
+    stack: true,
+  },
 ];
 
 export const Recipes = [
-  { id: "iron_sword", materials: { iron: 10, wood: 2 }, craftTime: 2, outputQty: 1 },
-  { id: "hp_potion", materials: { herb: 3, water: 1 }, craftTime: 1, outputQty: 1 },
+  {
+    id: "iron_sword",
+    materials: { iron: 10, wood: 2 },
+    craftTime: 2,
+    outputQty: 1,
+  },
+  {
+    id: "hp_potion",
+    materials: { herb: 3, water: 1 },
+    craftTime: 1,
+    outputQty: 1,
+  },
 ];
 
 export const LootTables = {
