@@ -15,6 +15,7 @@ local controllers = {}
 controllers.Combat = safeRequire(script:FindFirstChild("Controllers"):FindFirstChild("Combat")) or {}
 controllers.Arcana = safeRequire(script.Controllers:FindFirstChild("Arcana")) or {}
 controllers.Status = safeRequire(script.Controllers:FindFirstChild("Status")) or {}
+controllers.Monolith = safeRequire(script.Controllers:FindFirstChild("Monolith")) or {}
 
 for _, c in pairs(controllers) do
 	if type(c.Init) == "function" then c:Init() end
