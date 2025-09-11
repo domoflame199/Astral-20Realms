@@ -105,6 +105,26 @@ function AI.Spawn(template, position)
 	local maid = Maid.new()
 	active[model] = maid
 	spawn(function() loopAI(model, maid) end)
+	-- death handler: award loot and XP to last attacker
+	local hum = findHumanoid(model)
+	if hum then
+		maid:GiveTask(hum.Died:Connect(function()
+			local lootTable = model:GetAttribute("LootTable") or string.lower(model.Name) or "goblin"
+			local xpAmount = model:GetAttribute("XP") or 25
+			local uid = hum:GetAttribute("LastAttackerUserId")
+			local plr = nil
+			if uid and type(uid) == "number" then
+				plr = Players:GetPlayerByUserId(uid)
+			end
+			if plr then
+				-- roll loot and award XP
+				pcall(function()
+					Loot.RollFor(plr, lootTable)
+					PlayerData.AddXP(plr, xpAmount)
+				end)
+			end
+		end))
+	end
 	-- cleanup when model removed
 	maid:GiveTask(model.AncestryChanged:Connect(function()
 		if not model:IsDescendantOf(game) then
