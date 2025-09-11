@@ -46,9 +46,12 @@ local function bootstrap()
 	Services.PlayerData = requireIfExists(script.Parent:FindFirstChild("PlayerData")) or {}
 	Services.StatusEffects = requireIfExists(script.Parent:FindFirstChild("StatusEffects")) or {}
 	Services.Traits = requireIfExists(script.Parent:FindFirstChild("Traits")) or {}
+	Services.NPCTemplates = requireIfExists(script.Parent:FindFirstChild("NPCTemplates")) or {}
+	Services.AI = requireIfExists(script.Parent:FindFirstChild("AI")) or {}
 	Services.Arcana = requireIfExists(script.Parent:FindFirstChild("Arcana")) or {}
 	Services.Combat = requireIfExists(script.Parent:FindChild("Combat")) or requireIfExists(script.Parent:FindFirstChild("Combat")) or {}
 	Services.Monolith = requireIfExists(script.Parent:FindFirstChild("Monolith")) or {}
+	Services.Loot = requireIfExists(script.Parent:FindFirstChild("Loot")) or {}
 	Services.Matchmaking = requireIfExists(script.Parent:FindFirstChild("Matchmaking")) or {}
 
 	for _, mod in pairs(Services) do
