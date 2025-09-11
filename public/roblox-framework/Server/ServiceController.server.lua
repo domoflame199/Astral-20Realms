@@ -31,6 +31,7 @@ local function bootstrap()
 	Net.GetEvent("StatusApplied")
 	Net.GetEvent("StatusCleared")
 	Net.GetEvent("MonolithAttune")
+	Net.GetEvent("PlayerLeveled")
 	Net.GetFunction("GetProfile")
 	-- Shop / Crafting
 	Net.GetFunction("ShopBuy")
