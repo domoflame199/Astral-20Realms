@@ -83,6 +83,7 @@ export default function Index() {
     "Client/Controllers/Combat.client.lua",
     "Client/Controllers/Arcana.client.lua",
     "Client/Controllers/Status.client.lua",
+    "Client/Controllers/Monolith.client.lua",
   ];
 
   const handleDownloadAll = async () => {
