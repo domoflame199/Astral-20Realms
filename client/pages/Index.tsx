@@ -73,6 +73,8 @@ export default function Index() {
     "Server/ServiceController.server.lua",
     "Server/PlayerData.server.lua",
     "Server/Combat.server.lua",
+    "Server/AI.server.lua",
+    "Server/Loot.server.lua",
     "Server/Monolith.server.lua",
     "Server/StatusEffects.server.lua",
     "Server/RateLimiter.server.lua",
