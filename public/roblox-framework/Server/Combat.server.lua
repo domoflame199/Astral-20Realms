@@ -78,6 +78,12 @@ function Combat.ApplyDamage(attacker, targetHumanoid, baseDamage, meta)
 	if targetHumanoid and targetHumanoid.Health > 0 then
 		local final = math.floor(dmg)
 		targetHumanoid:TakeDamage(final)
+		-- tag last attacker for loot/xp attribution
+		if typeof(attacker) == "Instance" and attacker:IsA("Player") then
+			pcall(function()
+				targetHumanoid:SetAttribute("LastAttackerUserId", attacker.UserId)
+			end)
+		end
 		-- small chance to apply a status
 		if math.random() < 0.08 then
 			Status.Apply(attacker, "Bleeding", 4)
