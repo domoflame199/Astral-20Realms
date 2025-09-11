@@ -13,6 +13,7 @@ local Loot = require(script.Parent:WaitForChild("Loot"))
 local Config = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitForChild("Shared"):WaitForChild("Config"))
 local Maid = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitForChild("Shared"):WaitForChild("Maid"))
 local Combat = require(script.Parent:WaitForChild("Combat"))
+local PlayerData = require(script.Parent:WaitForChild("PlayerData"))
 
 local AI = {}
 AI.__index = AI
