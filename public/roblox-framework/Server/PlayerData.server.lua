@@ -157,6 +157,31 @@ function PlayerData.AddGold(plr, amount)
 	return true
 end
 
+local function xpToLevel(level)
+	-- simple quadratic progression
+	return 100 * level
+end
+
+function PlayerData.AddXP(plr, amount)
+	local profile = sessions[plr]
+	if not profile then return false end
+	local stats = profile.Stats
+	stats.XP = (stats.XP or 0) + (amount or 0)
+	local leveled = false
+	while stats.XP >= xpToLevel(stats.Level or 1) do
+		stats.XP = stats.XP - xpToLevel(stats.Level or 1)
+		stats.Level = (stats.Level or 1) + 1
+		leveled = true
+	end
+	if leveled then
+		-- notify client of level up
+		pcall(function()
+			Net.GetEvent("PlayerLeveled"):FireClient(plr, stats.Level)
+		end)
+	end
+	return true
+end
+
 function PlayerData.HasMaterials(plr, materials)
 	local profile = sessions[plr]
 	if not profile then return false end
