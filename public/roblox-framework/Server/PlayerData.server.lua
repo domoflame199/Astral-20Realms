@@ -32,24 +32,20 @@ local function deepCopy(t)
 end
 
 local migrations = {}
--- example migration placeholder: migrations[0] -> 1
+-- migration from 0 -> 1
 migrations[0] = function(profile)
-	-- migrate older shape to include SchemaVersion
 	profile.SchemaVersion = 1
 	if not profile.Inventory then profile.Inventory = {} end
+	if not profile.Stats then profile.Stats = deepCopy(DEFAULT.Stats) end
 	return profile
 end
 
 local function validateAndMigrate(profile)
 	if type(profile) ~= "table" then return deepCopy(DEFAULT) end
-	-- ensure keys
 	if profile.SchemaVersion == nil then profile.SchemaVersion = 0 end
 	for k, v in pairs(DEFAULT) do
-		if profile[k] == nil then
-			profile[k] = deepCopy(v)
-		end
+		if profile[k] == nil then profile[k] = deepCopy(v) end
 	end
-	-- run migrations if needed
 	local cur = profile.SchemaVersion
 	while cur < SCHEMA_VERSION do
 		local m = migrations[cur]
@@ -58,13 +54,11 @@ local function validateAndMigrate(profile)
 			profile.SchemaVersion = profile.SchemaVersion + 1
 			cur = profile.SchemaVersion
 		else
-			-- if no migration available, patch missing defaults and bump
 			for k, v in pairs(DEFAULT) do if profile[k] == nil then profile[k] = deepCopy(v) end end
 			profile.SchemaVersion = SCHEMA_VERSION
 			cur = profile.SchemaVersion
 		end
 	end
-	-- basic type enforcement
 	if type(profile.Stats) ~= "table" then profile.Stats = deepCopy(DEFAULT.Stats) end
 	if type(profile.Inventory) ~= "table" then profile.Inventory = {} end
 	if type(profile.Traits) ~= "table" then profile.Traits = {} end
@@ -74,7 +68,7 @@ end
 local function saveWithRetries(key, data)
 	local attempt = 0
 	while attempt < Config.DataStore.RetryCount do
-		local ok, err = pcall(function()
+		local ok = pcall(function()
 			store:SetAsync(key, data)
 		end)
 		if ok then return true end
@@ -89,17 +83,13 @@ local function saveSession(plr)
 	local profile = sessions[plr]
 	if not profile then return false end
 	local key = "U_" .. plr.UserId
-	-- store a shallow copy to avoid mutation during save
-	local ok = saveWithRetries(key, profile)
-	if not ok then warn("Failed to save profile for", plr.Name) end
-	return ok
+	return saveWithRetries(key, profile)
 end
 
 function PlayerData:Init()
 	Net.GetFunction("GetProfile").OnServerInvoke = function(plr)
 		local p = sessions[plr]
 		if not p then return nil end
-		-- return copy to avoid client mutating server state
 		return deepCopy(p)
 	end
 end
@@ -119,12 +109,11 @@ function PlayerData:OnPlayerAdded(plr)
 end
 
 function PlayerData:OnPlayerRemoving(plr)
-	-- ensure immediate save before removing
 	saveSession(plr)
 	sessions[plr] = nil
 end
 
--- autosave loop
+-- autosave
 spawn(function()
 	while true do
 		task.wait(AUTOSAVE_INTERVAL)
@@ -134,7 +123,7 @@ spawn(function()
 	end
 end)
 
--- Helper functions for basic inventory and economy operations
+-- Helpers
 function PlayerData.AddItem(plr, item, qty)
 	local profile = sessions[plr]
 	if not profile then return false end
@@ -145,20 +134,19 @@ end
 function PlayerData.RemoveGold(plr, amount)
 	local profile = sessions[plr]
 	if not profile then return false end
-	if profile.Stats.Gold < amount then return false end
-	profile.Stats.Gold = profile.Stats.Gold - amount
+	if (profile.Stats.Gold or 0) < amount then return false end
+	profile.Stats.Gold = (profile.Stats.Gold or 0) - amount
 	return true
 end
 
 function PlayerData.AddGold(plr, amount)
 	local profile = sessions[plr]
 	if not profile then return false end
-	profile.Stats.Gold = profile.Stats.Gold + amount
+	profile.Stats.Gold = (profile.Stats.Gold or 0) + amount
 	return true
 end
 
 local function xpToLevel(level)
-	-- simple quadratic progression
 	return 100 * level
 end
 
@@ -174,7 +162,6 @@ function PlayerData.AddXP(plr, amount)
 		leveled = true
 	end
 	if leveled then
-		-- notify client of level up
 		pcall(function()
 			Net.GetEvent("PlayerLeveled"):FireClient(plr, stats.Level)
 		end)
@@ -199,55 +186,6 @@ function PlayerData.RemoveMaterials(plr, materials)
 		if profile.Inventory[item] <= 0 then profile.Inventory[item] = nil end
 	end
 	return true
-end
-
-function PlayerData.Get(plr)
-	return sessions[plr]
-end
-
-return PlayerData
-
-local function deepCopy(t)
-	local n = {}
-	for k, v in pairs(t) do
-		n[k] = type(v) == "table" and deepCopy(v) or v
-	end
-	return n
-end
-
-function PlayerData:Init()
-	Net.GetFunction("GetProfile").OnServerInvoke = function(plr)
-		return sessions[plr]
-	end
-end
-
-function PlayerData:OnPlayerAdded(plr)
-	local key = "U_" .. plr.UserId
-	local data
-	for i = 1, Config.DataStore.RetryCount do
-		local ok, result = pcall(function()
-			return store:GetAsync(key)
-		end)
-		if ok then data = result break end
-		task.wait(Config.DataStore.RetryDelay)
-	end
-	if type(data) ~= "table" then data = deepCopy(DEFAULT) end
-	sessions[plr] = data
-end
-
-function PlayerData:OnPlayerRemoving(plr)
-	local key = "U_" .. plr.UserId
-	local data = sessions[plr]
-	if data then
-		for i = 1, Config.DataStore.RetryCount do
-			local ok = pcall(function()
-				store:SetAsync(key, data)
-			end)
-			if ok then break end
-			task.wait(Config.DataStore.RetryDelay)
-		end
-		sessions[plr] = nil
-	end
 end
 
 function PlayerData.Get(plr)
