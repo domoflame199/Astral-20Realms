@@ -18,6 +18,7 @@ controllers.Status = safeRequire(script.Controllers:FindFirstChild("Status")) or
 controllers.Monolith = safeRequire(script.Controllers:FindFirstChild("Monolith")) or {}
 controllers.Progression = safeRequire(script.Controllers:FindFirstChild("Progression")) or {}
 controllers.Shop = safeRequire(script.Controllers:FindFirstChild("Shop")) or {}
+controllers.Quests = safeRequire(script.Controllers:FindFirstChild("Quests")) or {}
 
 for _, c in pairs(controllers) do
 	if type(c.Init) == "function" then c:Init() end

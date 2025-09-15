@@ -38,6 +38,12 @@ local function bootstrap()
 	Net.GetFunction("RequestShop")
 	Net.GetFunction("CraftItem")
 	Net.GetEvent("ShopUpdate")
+	-- Quests
+	Net.GetFunction("GetQuests")
+	Net.GetFunction("AcceptQuest")
+	Net.GetFunction("AbandonQuest")
+	Net.GetFunction("TurnInQuest")
+	Net.GetEvent("QuestUpdate")
 	-- NPC / AI / Loot
 	Net.GetEvent("NPCSpawn")
 	Net.GetEvent("LootDropped")
@@ -53,6 +59,7 @@ local function bootstrap()
 	Services.Combat = requireIfExists(script.Parent:FindChild("Combat")) or requireIfExists(script.Parent:FindFirstChild("Combat")) or {}
 	Services.Monolith = requireIfExists(script.Parent:FindFirstChild("Monolith")) or {}
 	Services.Loot = requireIfExists(script.Parent:FindFirstChild("Loot")) or {}
+	Services.Quests = requireIfExists(script.Parent:FindFirstChild("Quests")) or {}
 	Services.Matchmaking = requireIfExists(script.Parent:FindFirstChild("Matchmaking")) or {}
 
 	for _, mod in pairs(Services) do

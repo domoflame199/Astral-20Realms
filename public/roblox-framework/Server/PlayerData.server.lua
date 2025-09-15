@@ -20,6 +20,7 @@ local DEFAULT = {
 	Arcana = { Primary = "", Rare = "" },
 	Stats = { Level = 1, XP = 0, Gold = 0 },
 	Inventory = {},
+	Quests = { Active = {}, Completed = {} },
 	FirstAttunementGranted = false,
 }
 
@@ -37,6 +38,7 @@ migrations[0] = function(profile)
 	profile.SchemaVersion = 1
 	if not profile.Inventory then profile.Inventory = {} end
 	if not profile.Stats then profile.Stats = deepCopy(DEFAULT.Stats) end
+	if not profile.Quests then profile.Quests = deepCopy(DEFAULT.Quests) end
 	return profile
 end
 
@@ -62,6 +64,9 @@ local function validateAndMigrate(profile)
 	if type(profile.Stats) ~= "table" then profile.Stats = deepCopy(DEFAULT.Stats) end
 	if type(profile.Inventory) ~= "table" then profile.Inventory = {} end
 	if type(profile.Traits) ~= "table" then profile.Traits = {} end
+	if type(profile.Quests) ~= "table" then profile.Quests = deepCopy(DEFAULT.Quests) end
+	profile.Quests.Active = profile.Quests.Active or {}
+	profile.Quests.Completed = profile.Quests.Completed or {}
 	return profile
 end
 

@@ -15,6 +15,7 @@ local Config = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitFor
 local Maid = require(ReplicatedStorage:WaitForChild("AstralFramework"):WaitForChild("Shared"):WaitForChild("Maid"))
 local Combat = require(script.Parent:WaitForChild("Combat"))
 local PlayerData = require(script.Parent:WaitForChild("PlayerData"))
+local Quests = require(script.Parent:FindFirstChild("Quests"))
 
 local AI = {}
 AI.__index = AI
@@ -121,6 +122,9 @@ function AI.Spawn(template, position)
 				pcall(function()
 					Loot.RollFor(plr, lootTable)
 					PlayerData.AddXP(plr, xpAmount)
+					if Quests and Quests.OnNPCKilled then
+						Quests.OnNPCKilled(plr, lootTable)
+					end
 				end)
 			end
 		end))
