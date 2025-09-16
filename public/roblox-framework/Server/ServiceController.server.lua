@@ -48,6 +48,10 @@ local function bootstrap()
 	Net.GetEvent("NPCSpawn")
 	Net.GetEvent("LootDropped")
 	Net.GetFunction("RollLoot")
+	-- Rifts
+	Net.GetFunction("EnterRift")
+	Net.GetFunction("ExitRift")
+	Net.GetEvent("RiftStatus")
 
 	Services.RateLimiter = requireIfExists(script.Parent:FindFirstChild("RateLimiter")) or {}
 	Services.PlayerData = requireIfExists(script.Parent:FindFirstChild("PlayerData")) or {}
@@ -60,6 +64,7 @@ local function bootstrap()
 	Services.Monolith = requireIfExists(script.Parent:FindFirstChild("Monolith")) or {}
 	Services.Loot = requireIfExists(script.Parent:FindFirstChild("Loot")) or {}
 	Services.Quests = requireIfExists(script.Parent:FindFirstChild("Quests")) or {}
+	Services.Rift = requireIfExists(script.Parent:FindFirstChild("Rift")) or {}
 	Services.Matchmaking = requireIfExists(script.Parent:FindFirstChild("Matchmaking")) or {}
 
 	for _, mod in pairs(Services) do

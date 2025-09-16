@@ -70,6 +70,8 @@ export default function Index() {
     "Shared/Signal.lua",
     "Shared/Net.lua",
     "Shared/Config.lua",
+    "Shared/Items.lua",
+    "Shared/Quests.lua",
     "Server/ServiceController.server.lua",
     "Server/PlayerData.server.lua",
     "Server/Combat.server.lua",
@@ -81,11 +83,19 @@ export default function Index() {
     "Server/Matchmaking.server.lua",
     "Server/Arcana.server.lua",
     "Server/Traits.server.lua",
+    "Server/Shop.server.lua",
+    "Server/Crafting.server.lua",
+    "Server/Quests.server.lua",
     "Client/Bootstrap.client.lua",
     "Client/Controllers/Combat.client.lua",
     "Client/Controllers/Arcana.client.lua",
     "Client/Controllers/Status.client.lua",
     "Client/Controllers/Monolith.client.lua",
+    "Client/Controllers/Progression.client.lua",
+    "Client/Controllers/Shop.client.lua",
+    "Client/Controllers/Quests.client.lua",
+    "Client/Controllers/Rift.client.lua",
+    "Server/Rift.server.lua",
   ];
 
   const handleDownloadAll = async () => {
